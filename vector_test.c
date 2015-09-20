@@ -17,7 +17,7 @@ int main(int argc, char const *argv[])
 		int e = vector_pop(vector);
 		ASRT_int(i, e);
 	}
-	vector_free(vector);
+	vector_delete(vector);
 	printf("All Ok.\n");
 	return 0;
 }
