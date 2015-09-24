@@ -1,5 +1,6 @@
 /*
  * Resizeable array.
+ * Template letter: E
  */
 #include <stdlib.h>
 #include <assert.h>
