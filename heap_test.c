@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <assert.h>
+#include "stdmacro.h"
 #include "pcg32.h"
 
 #define E uint32_t
@@ -34,19 +35,46 @@ bool isheap(uint32_t *arr, size_t len, heap_gt gt)
 	return true;
 }
 
+bool issorted(uint32_t *arr, size_t length)
+{
+	for (size_t i = 1; i < length; i++) {
+		if (arr[i-1] > arr[i]) {
+			return false;
+		}
+	}
+	return true;
+}
+
 bool uint32_gt(uint32_t a, uint32_t b)
 {
 	return a > b;
 }
 
+int uint32_cmp(const void *a, const void *b)
+{
+	return CMP(*(uint32_t*)a, *(uint32_t*)b);
+}
+
 int main(int argc, char const *argv[])
 {
-	size_t len = 100;
+	size_t len = 10 * MEGA;
 	uint32_t *arr = malloc(len * sizeof(*arr));
+
 	fill_random(arr, len);
 	assert(isheap(arr, len, uint32_gt) == false);
 	heap_make(arr, len, uint32_gt);
 	assert(isheap(arr, len, uint32_gt) == true);
+
+	fill_random(arr, len);
+	assert(issorted(arr, len) == false);
+	qsort(arr, len, sizeof(uint32_t), uint32_cmp);
+	assert(issorted(arr, len) == true);
+
+	fill_random(arr, len);
+	assert(issorted(arr, len) == false);
+	heap_sort(arr, len, uint32_gt);
+	assert(issorted(arr, len) == true);
+
 	free(arr);
 	printf("All Ok.\n");
 	return 0;
