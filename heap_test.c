@@ -18,20 +18,25 @@ void fill_random(uint32_t *arr, size_t len)
 	}
 }
 
-bool isheap(uint32_t *arr, size_t len)
+bool isheap(uint32_t *arr, size_t len, heap_gt gt)
 {
 	size_t last_parent = (len - 2) / 2;
 	for (size_t p = 0; p <= last_parent; p++) {
 		size_t c = 2 * p + 1;
-		if (c < len && arr[c] > arr[p]) {
+		if (c < len && gt(arr[c], arr[p])) {
 			return false;
 		}
 		c++;
-		if (c < len && arr[c] > arr[p]) {
+		if (c < len && gt(arr[c], arr[p])) {
 			return false;
 		}
 	}
 	return true;
+}
+
+bool uint32_gt(uint32_t a, uint32_t b)
+{
+	return a > b;
 }
 
 int main(int argc, char const *argv[])
@@ -39,9 +44,9 @@ int main(int argc, char const *argv[])
 	size_t len = 100;
 	uint32_t *arr = malloc(len * sizeof(*arr));
 	fill_random(arr, len);
-	assert(isheap(arr, len) == false);
-	heap_make(arr, len);
-	assert(isheap(arr, len) == true);
+	assert(isheap(arr, len, uint32_gt) == false);
+	heap_make(arr, len, uint32_gt);
+	assert(isheap(arr, len, uint32_gt) == true);
 	free(arr);
 	printf("All Ok.\n");
 	return 0;
