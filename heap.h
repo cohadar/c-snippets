@@ -11,7 +11,7 @@
 typedef bool (*heap_gt)(const E a, const E b);
 
 /* root of a heap is not max, sink it down until heap is restored */
-void heap_sinkroot(E *arr, size_t len, heap_gt gt, size_t r)
+void heap_sinkroot(E *arr, size_t len, size_t r, heap_gt gt)
 {
 	size_t m = r;
 	for(;;) {
@@ -41,7 +41,7 @@ void heap_make(E *arr, size_t len, heap_gt gt)
 	}
 	size_t last_parent = (len - 1 - 1) / 2;
 	for (size_t pp1 = last_parent + 1; pp1 > 0; pp1--) {
-		heap_sinkroot(arr, len, gt, pp1 - 1);
+		heap_sinkroot(arr, len, pp1 - 1, gt);
 	}
 }
 
@@ -53,6 +53,6 @@ void heap_sort(E *arr, size_t len, heap_gt gt)
 		E max = arr[0];
 		arr[0] = arr[i];
 		arr[i] = max;
-		heap_sinkroot(arr, i, gt, 0);
+		heap_sinkroot(arr, i, 0, gt);
 	}
 }
