@@ -2,10 +2,6 @@
  * Circular list of memory segments that are reused and reallocated after some time.
  * Best used for temporary buffers, the main advantage is that you do not need to manually free memory.
  */
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
-
 #define _RING_ARENA_MAX_ALIGN 16
 
 typedef struct {

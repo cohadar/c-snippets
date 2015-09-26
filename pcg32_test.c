@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <inttypes.h>
 #include "pcg32.h"
 #include "asrt/asrt.h"
 #include "stdmacro.h"

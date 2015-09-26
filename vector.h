@@ -2,9 +2,6 @@
  * Resizeable array.
  * Template letter: E
  */
-#include <stdlib.h>
-#include <assert.h>
-
 typedef struct {
 	E *data;
 	size_t length;

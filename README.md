@@ -9,4 +9,5 @@ Objects use camel case, functions use lowercase.
 'this/self' variables are named 'o', o->data
 Constructors are named ClassName_new
 Destructors are named ClassName_delete
+No include directives inside header files!
 
