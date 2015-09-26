@@ -47,7 +47,7 @@ bool issorted(uint32_t *arr, size_t length, insertionsort_gt gt)
 int main(int argc, char const *argv[])
 {
 	rng.state = (uint32_t)&main;
-	size_t length = 100 * MEGA;
+	size_t length = MEGA;
 	uint32_t *arr = malloc(length * sizeof(*arr));
 	assert(arr);
 	fill_random_array(arr, length);
