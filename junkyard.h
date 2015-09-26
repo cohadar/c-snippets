@@ -43,3 +43,9 @@ memset(used, 0, sizeof(used));
 
 // part of stddef.h
 offsetof(struct njak, x);
+
+// profiling time measure
+clock_t start = clock() ;
+do_some_stuff();
+clock_t end = clock() ;
+elapsed_time += (end-start)/(double)CLOCKS_PER_SEC;

@@ -3,6 +3,9 @@
  *  Template letter: E
  */
 
+/* empiric value that determines when we switch from merge to insertion sort */
+#define _MERGE_INSERTION_BORDER 48
+
 /* merge adjoining array segments [l..m) [m..r) */
  void merge_segments(E *arr, size_t l, size_t m, size_t r, insertionsort_gt gt)
  {
@@ -18,20 +21,24 @@
  			buf[ib++] = arr[il++];
  		}
  	}
+ 	// NOTE: it is actually faster to let compiler optimize loops
+ 	// than to use memcpy directly!
  	while (il < m) {
  		arr[il + r - m] = arr[il];
  		il++;
  	}
+ 	// memcpy(&arr[il + r - m], &arr[il], (m - il) * sizeof(E)); // same as while above
  	for (size_t i = 0; i < ib; i++) {
  		arr[l + i] = buf[i];
  	}
+ 	// memcpy(arr + l, buf, ib * sizeof(E)); // same as for above
  	free(buf);
  }
 
 /* mergesort an open segment [l..r) */
 void merge_sort2(E *arr, size_t l, size_t r, insertionsort_gt gt)
 {
-	if (r - l <= 16) {
+	if (r - l <= _MERGE_INSERTION_BORDER) {
 		insertionsort(arr + l, r - l, gt);
 	} else {
 		size_t m = (l + r) / 2;

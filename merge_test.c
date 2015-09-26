@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <inttypes.h>
+#include <string.h>
+#include <time.h>
 
 #include "stdmacro.h"
 #include "pcg32.h"
@@ -15,21 +17,21 @@
 
 pcg32_random_t rng = {13, 17};
 
-
-
-uint32_t *malloc_random_array(size_t length)
+void fill_random_array(uint32_t *arr, size_t length)
 {
-	uint32_t *arr = malloc(length * sizeof(*arr));
-	assert(arr);
 	for (size_t i = 0; i < length; i++) {
 		arr[i] = pcg32_random0(&rng) % 10;
 	}
-	return arr;
 }
 
 bool uint32_gt(const uint32_t a, const uint32_t b)
 {
 	return a > b;
+}
+
+int uint32_cmp(const void *a, const void *b)
+{
+	return CMP(*(uint32_t*)a, *(uint32_t*)b);
 }
 
 bool issorted(uint32_t *arr, size_t length, insertionsort_gt gt)
@@ -45,10 +47,13 @@ bool issorted(uint32_t *arr, size_t length, insertionsort_gt gt)
 int main(int argc, char const *argv[])
 {
 	rng.state = (uint32_t)&main;
-	size_t length = KILO;
-	uint32_t *arr = malloc_random_array(length);
+	size_t length = 100 * MEGA;
+	uint32_t *arr = malloc(length * sizeof(*arr));
+	assert(arr);
+	fill_random_array(arr, length);
 	assert(issorted(arr, length, uint32_gt) == false);
 	merge_sort(arr, length, uint32_gt);
+	// mergesort(arr, length, sizeof(*arr), uint32_cmp); // from stdlib
 	assert(issorted(arr, length, uint32_gt) == true);
 	free(arr);
 	printf("All Ok.\n");
