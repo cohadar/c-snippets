@@ -1,6 +1,10 @@
 /*
  * Heap, implicit heap in array.
  * Template letter: E
+ *
+ * On 100 * MEGA of uint32_t
+ * qsort:     21.2s
+ * heap_sort: 37.4s
  */
 
 /* returns true if a > b */

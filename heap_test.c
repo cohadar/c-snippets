@@ -55,9 +55,14 @@ int uint32_cmp(const void *a, const void *b)
 	return CMP(*(uint32_t*)a, *(uint32_t*)b);
 }
 
+/*
+ * On 100 * MEGA of uint32_t
+ * qsort:     21.2s
+ * heap_sort: 37.4s
+ */
 int main(int argc, char const *argv[])
 {
-	size_t len = 10 * MEGA;
+	size_t len = MEGA;
 	uint32_t *arr = malloc(len * sizeof(*arr));
 
 	fill_random(arr, len);
