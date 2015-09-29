@@ -7,7 +7,7 @@ typedef struct {
 	size_t length;
 } Vector;
 
-Vector *vector_new()
+Vector *Vector_new()
 {
 	Vector *o = malloc(sizeof(*o));
 	assert(o);
@@ -16,7 +16,7 @@ Vector *vector_new()
 	return o;
 }
 
-void vector_delete(Vector *o)
+void Vector_delete(Vector *o)
 {
 	if (o->data) {
 		free(o->data);
@@ -25,14 +25,14 @@ void vector_delete(Vector *o)
 	free(o);
 }
 
-void vector_push(Vector *o, E element)
+void Vector_push(Vector *o, E element)
 {
 	o->data = realloc(o->data, ++o->length * sizeof(E));
 	assert(o->data);
 	o->data[o->length - 1] = element;
 }
 
-E vector_pop(Vector *o)
+E Vector_pop(Vector *o)
 {
 	assert(o->length > 0);
 	E ret = o->data[--o->length];
