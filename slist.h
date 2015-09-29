@@ -9,52 +9,52 @@ typedef struct SList {
 } SList;
 
 SList *SList_new() {
-	SList *pivot = malloc(sizeof(*pivot));
-	assert(pivot);
+	SList *o = malloc(sizeof(*o));
+	assert(o);
 	// Data is uninitialized in pivot.
-	// Empty list is pivot pointing to itself.
-	pivot->next = pivot;
-	return pivot;
+	// Empty list is represented as a pivot pointing to itself.
+	o->next = o;
+	return o;
 }
 
-void SList_delete(SList *lst)
+void SList_delete(SList *o)
 {
-	assert(lst);
-	SList *pivot = lst;
-	lst = pivot->next;
-	while (pivot != lst) {
-		SList *tmp = lst->next;
-		free(lst);
-		lst = tmp;
+	assert(o);
+	SList *p = o->next;
+	while (p != o) {
+		SList *tmp = p->next;
+		free(p);
+		p = tmp;
 	}
-	free(pivot);
+	free(o);
 }
 
-void SList_appendArray(SList *pivot, E *arr, size_t len)
+void SList_appendArray(SList *o, E *arr, size_t len)
 {
 	assert(len >= 0);
-	assert(pivot);
-	SList *l = pivot;
+	assert(o);
+	SList *p = o;
 	for (size_t i = 0; i < len; i++) {
-		l->next = malloc(sizeof(*l->next));
-		assert(l->next);
-		l = l->next;
-		l->data = arr[i];
+		p->next = malloc(sizeof(*p->next));
+		assert(p->next);
+		p = p->next;
+		p->data = arr[i];
 	}
-	l->next = pivot;
+	p->next = o;
 }
 
-E *SList_mallocArray(SList *lst, size_t *len)
+E *SList_mallocArray(SList *o, size_t *len)
 {
+	assert(o);
+	assert(len);
 	*len = 0;
 	E *arr = NULL;
-	SList *pivot = lst;
-	lst = pivot->next;
-	while (lst != pivot) {
+	SList *p = o->next;
+	while (p != o) {
 		arr = realloc(arr, ++(*len));
 		assert(arr);
-		arr[*len - 1] = lst->data;
-		lst = lst->next;
+		arr[*len - 1] = p->data;
+		p = p->next;
 	}
 	return arr;
 }
