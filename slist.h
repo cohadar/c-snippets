@@ -58,3 +58,45 @@ E *SList_mallocArray(SList *o, size_t *len)
 	}
 	return arr;
 }
+
+// TODO: there is an error is here, tail is not updated but it should be.
+SList* _SList_insertInSorted(SList *head, SList *tail, SList *toInsert)
+{
+	if (toInsert->data > head->data) {
+		SList *l = head;
+		SList *r = head->next;
+		while (r != head) {
+			if (toInsert->data > r->data) {
+				l = r;
+				r = r->next;
+			} else {
+				l->next = toInsert;
+				toInsert->next = r;
+				return head;
+			}
+		}
+		l->next = toInsert;
+		toInsert->next = head;
+		return head;
+	} else {
+		toInsert->next = head;
+		tail->next = toInsert;
+		return toInsert;
+	}
+}
+
+SList* SList_insertionSort(SList *o)
+{
+	assert(o);
+	if (o->next == o) return o;
+	SList *head = o;
+	SList *tail = o;
+	SList *p = o->next;
+	head->next = head;
+	while (p != o) {
+		SList *toInsert = p;
+		p = p->next;
+		head = _SList_insertInSorted(head, tail, toInsert);
+	}
+	return head;
+}
