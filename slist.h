@@ -43,6 +43,21 @@ void SList_delete(SList *o)
 	free(o);
 }
 
+void SList_verify(SList *o)
+{
+	assert(o);
+	assert(o->_head);
+	assert(o->_tail);
+	size_t count = 0;
+	SNode *p = o->_head;
+	while (p->next) {
+		p = p->next;
+		count++;
+	}
+	assert(count == o->_len);
+	assert(p == o->_tail);
+}
+
 void SList_appendArray(SList *o, E *arr, size_t len)
 {
 	assert(len >= 0);
@@ -77,9 +92,24 @@ E *SList_mallocArray(SList *o, size_t *len)
 	return arr;
 }
 
-// SList* SList_insertionSort(SList *o)
-// {
-// 	if (o->_len < 2) return o;
-// 	SNode *h = o->_head;
-// 	SNode *t = o->_head->next;
-// }
+void SList_insertionSort(SList *o)
+{
+	if (o->_len < 2) return;
+	SNode *t = o->_head->next->next;
+	o->_head->next->next = NULL;
+	o->_tail = o->_head->next;
+	while (t) {
+		SNode *l = o->_head;
+		while (l->next && t->data > l->next->data) {
+			l = l->next;
+		}
+		SNode *tn = t->next;
+		SNode *ln = l->next;
+		l->next = t;
+		t->next = ln;
+		if (ln == NULL) {
+			o->_tail = t;
+		}
+		t = tn;
+	}
+}
