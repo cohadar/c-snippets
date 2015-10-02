@@ -9,9 +9,9 @@ typedef struct SNode {
 } SNode;
 
 typedef struct {
-	struct SNode *_head;
-	struct SNode *_tail;
-	size_t _len;
+	struct SNode *head;
+	struct SNode *tail;
+	size_t len;
 } SList;
 
 SList *SList_new() {
@@ -19,16 +19,16 @@ SList *SList_new() {
 	assert(o);
 	SNode *dummy = malloc(sizeof(*dummy));
 	assert(dummy);
-	o->_head = dummy;
-	o->_tail = dummy;
-	o->_len = 0;
+	o->head = dummy;
+	o->tail = dummy;
+	o->len = 0;
 	dummy->next = NULL;
 	return o;
 }
 
 void SList_delete(SList *o)
 {
-	SNode *p = o->_head;
+	SNode *p = o->head;
 	while (p) {
 		SNode *tmp = p->next;
 		// paranoid nulling
@@ -37,69 +37,69 @@ void SList_delete(SList *o)
 		p = tmp;
 	}
 	// paranoid nulling
-	o->_head = NULL;
-	o->_tail = NULL;
-	o->_len = 0;
+	o->head = NULL;
+	o->tail = NULL;
+	o->len = 0;
 	free(o);
 }
 
 void SList_verify(SList *o)
 {
 	assert(o);
-	assert(o->_head);
-	assert(o->_tail);
+	assert(o->head);
+	assert(o->tail);
 	size_t count = 0;
-	SNode *p = o->_head;
+	SNode *p = o->head;
 	while (p->next) {
 		p = p->next;
 		count++;
 	}
-	assert(count == o->_len);
-	assert(p == o->_tail);
+	assert(count == o->len);
+	assert(p == o->tail);
 }
 
 void SList_appendArray(SList *o, E *arr, size_t len)
 {
 	assert(len >= 0);
-	SNode *p = o->_tail;
+	SNode *p = o->tail;
 	for (size_t i = 0; i < len; i++) {
 		p->next = malloc(sizeof(*p->next));
 		assert(p->next);
 		p = p->next;
 		p->data = arr[i];
-		o->_len++;
+		o->len++;
 	}
 	p->next = NULL;
-	o->_tail = p;
+	o->tail = p;
 }
 
 E *SList_mallocArray(SList *o, size_t *len)
 {
 	assert(o);
 	assert(len);
-	*len = o->_len;
+	*len = o->len;
 	E *arr = NULL;
-	if (o->_len > 0) {
-		arr = malloc(o->_len * sizeof(*arr));
+	if (o->len > 0) {
+		arr = malloc(o->len * sizeof(*arr));
 	}
-	SNode *p = o->_head->next;
+	SNode *p = o->head->next;
 	size_t i = 0;
 	while (p) {
 		arr[i++] = p->data;
 		p = p->next;
 	}
-	assert(i == o->_len);
+	assert(i == o->len);
 	return arr;
 }
 
 void SList_insertionSort(SList *o)
 {
-	if (o->_len < 2) return;
-	SNode *t = o->_head->next->next;
-	o->_head->next->next = NULL;
-	o->_tail = o->_head->next;
+	if (o->len < 2) return;
+	SNode *t = o->head->next->next;
+	o->head->next->next = NULL;
+	o->tail = o->head->next;
 	while (t) {
-		SNode *l = o->_head;
+		SNode *l = o->head;
 		while (l->next && t->data > l->next->data) {
 			l = l->next;
 		}
@@ -108,7 +108,7 @@ void SList_insertionSort(SList *o)
 		l->next = t;
 		t->next = ln;
 		if (ln == NULL) {
-			o->_tail = t;
+			o->tail = t;
 		}
 		t = tn;
 	}
