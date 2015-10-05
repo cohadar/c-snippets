@@ -142,6 +142,21 @@ size_t HashMap_size(HashMap *o)
 	return o->size;
 }
 
+
+/***/
+void HashMap_clear(HashMap *o)
+{
+	assert(o);
+	for (size_t i = 0; i < o->cap; i++) {
+		HashMapEntry *e = o->data + i;
+		while (e) {
+			e->key = o->null_key;
+			e = e->next;
+		}
+	}
+	o->size = 0;
+}
+
 /***/
 void HashMap_forAll(HashMap *o, HasMapEntry_func func, void *data)
 {

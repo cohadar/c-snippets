@@ -69,9 +69,9 @@ void saturation_test() {
 	HashMap_delete(map);
 }
 
-void sum_values(HashMapEntry *e, void *data)
+void sum_values(HashMapEntry *e, void *suma)
 {
-	*(int *)data += e->value;
+	*(int *)suma += e->value;
 }
 
 void filter_odd(HashMapEntry *e, void *data)
@@ -79,6 +79,17 @@ void filter_odd(HashMapEntry *e, void *data)
 	if (e->value % 2 == 1) {
 		e->key = NULL;
 	}
+}
+
+void assert_even(HashMapEntry *e, void *count)
+{
+	assert(e->value % 2 == 0);
+	*(int *)count += 1;
+}
+
+void assert_none(HashMapEntry *e, void *data)
+{
+	assert(0);
 }
 
 void iteration_test() {
@@ -103,6 +114,16 @@ void iteration_test() {
 	// filter odd
 	HashMap_forAll(map, filter_odd, NULL);
 	assert(HashMap_size(map) == 2048);
+
+	// assert all even
+	int count = 0;
+	HashMap_forAll(map, assert_even, &count);
+	assert(count == 2048);
+
+	// clear
+	HashMap_clear(map);
+	assert(HashMap_size(map) == 0);
+	HashMap_forAll(map, assert_none, NULL);
 
 	HashMap_delete(map);
 }
