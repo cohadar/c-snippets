@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <stdbool.h>
 
 typedef char *K;
 typedef int V;
@@ -10,7 +11,7 @@ size_t strz_hash(char *key) {
 	if (key == NULL) {
 		return 0;
 	}
-	uint32_t h = 0;
+	size_t h = 0;
 	for (; *key; key++) {
 		h = (31 * h) + (*key);
 	}

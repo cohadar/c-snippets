@@ -8,19 +8,20 @@ typedef struct HashMapEntry {
 	struct HashMapEntry *next;
 } HashMapEntry;
 
-typedef size_t (*HashMap_hash)(K key);
+typedef size_t (*HashMapKey_hash)(K key);
+typedef bool (*HashMapKey_eq)(K a, K b);  // TODO: use this, first check why this works without it!
 typedef void (*HasMapEntry_func)(HashMapEntry *e, void *data);
 
 typedef struct {
 	size_t cap;
 	size_t size;
-	HashMap_hash hash;
+	HashMapKey_hash hash;
 	K null_key;
 	V null_value;
 	HashMapEntry *data;
 } HashMap;
 
-HashMap *HashMap_new(size_t cap, HashMap_hash hash, K null_key, V null_value)
+HashMap *HashMap_new(size_t cap, HashMapKey_hash hash, K null_key, V null_value)
 {
 	assert(cap > 0);
 	assert(hash);
