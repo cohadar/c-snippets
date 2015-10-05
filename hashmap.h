@@ -2,13 +2,14 @@
  * Simple HashMap implementation, no auto resizing/rehashing.
  * Template letters: K, V
  */
-typedef struct HashEntry {
+typedef struct HashMapEntry {
 	K key;
 	V value;
-	struct HashEntry *next;
-} HashEntry;
+	struct HashMapEntry *next;
+} HashMapEntry;
 
 typedef size_t (*HashMap_hash)(K key);
+typedef void (*HasMapEntry_func)(HashMapEntry *e, void *data);
 
 typedef struct {
 	size_t cap;
@@ -16,7 +17,7 @@ typedef struct {
 	HashMap_hash hash;
 	K null_key;
 	V null_value;
-	HashEntry *data;
+	HashMapEntry *data;
 } HashMap;
 
 HashMap *HashMap_new(size_t cap, HashMap_hash hash, K null_key, V null_value)
@@ -44,9 +45,9 @@ void HashMap_delete(HashMap *o)
 {
 	assert(o);
 	for (size_t i = 0; i < o->cap; i++) {
-		HashEntry *e = o->data[i].next;
+		HashMapEntry *e = o->data[i].next;
 		while (e) {
-			HashEntry *t = e->next;
+			HashMapEntry *t = e->next;
 			free(e);
 			e = t;
 		}
@@ -65,7 +66,7 @@ V HashMap_put(HashMap *o, K key, V value)
 	assert(key != o->null_key);
 	size_t i = o->hash(key);
 	assert(i < o->cap);
-	HashEntry *e = o->data + i;
+	HashMapEntry *e = o->data + i;
 	while (e) {
 		if (e->key == key) {
 			V old = e->value;
@@ -102,7 +103,7 @@ V HashMap_get(HashMap *o, K key)
 	assert(key != o->null_key);
 	size_t i = o->hash(key);
 	assert(i < o->cap);
-	HashEntry *e = o->data + i;
+	HashMapEntry *e = o->data + i;
 	while (e) {
 		if (e->key == key) {
 			return e->value;
@@ -123,7 +124,7 @@ V HashMap_remove(HashMap *o, K key)
 	assert(key != o->null_key);
 	size_t i = o->hash(key);
 	assert(i < o->cap);
-	HashEntry *e = o->data + i;
+	HashMapEntry *e = o->data + i;
 	while (e) {
 		if (e->key == key) {
 			V removed = e->value;
@@ -143,3 +144,22 @@ size_t HashMap_size(HashMap *o)
 {
 	return o->size;
 }
+
+/***/
+void HashMap_forAll(HashMap *o, HasMapEntry_func func, void *data)
+{
+	assert(o);
+	for (size_t i = 0; i < o->cap; i++) {
+		HashMapEntry *e = o->data + i;
+		while (e) {
+			if (e->key != o->null_key) {
+				func(e, data);
+				if (e->key == o->null_key) {
+					o->size--;
+				}
+			}
+			e = e->next;
+		}
+	}
+}
+

@@ -66,10 +66,49 @@ void saturation_test() {
 	HashMap_delete(map);
 }
 
+void sum_values(HashMapEntry *e, void *data)
+{
+	*(int *)data += e->value;
+}
+
+void filter_odd(HashMapEntry *e, void *data)
+{
+	if (e->value % 2 == 1) {
+		e->key = NULL;
+	}
+}
+
+void iteration_test() {
+	char keys[4096][32];
+	for (size_t i = 0; i < 4096; i++) {
+		sprintf(keys[i], "%zd", 13579 + i);
+	}
+
+	HashMap *map = HashMap_new(1024, hash1024, NULL, -1);
+
+	// put all
+	for (size_t i = 0; i < 4096; i++) {
+		HashMap_put(map, keys[i], i);
+		assert(HashMap_size(map) == i + 1);
+	}
+
+	// sum all
+	int suma = 0;
+	HashMap_forAll(map, sum_values, &suma);
+	assert(suma == (4095 * 4096 / 2));
+
+	// filter odd
+	HashMap_forAll(map, filter_odd, NULL);
+	assert(HashMap_size(map) == 2048);
+
+	HashMap_delete(map);
+}
+
 int main(int argc, char const *argv[])
 {
 	putget_test();
 	saturation_test();
+	iteration_test();
 	printf("All Ok.\n");
 	return 0;
 }
