@@ -2,25 +2,17 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdbool.h>
+#include <string.h>
 
-typedef char *K;
 typedef int V;
 #include "hashmap.h"
 
-size_t strz_hash(char *key) {
-	if (key == NULL) {
-		return 0;
-	}
-	size_t h = 0;
-	for (; *key; key++) {
-		h = (31 * h) + (*key);
-	}
-	h ^= (h >> 20) ^ (h >> 12);
-	return h ^ (h >> 7) ^ (h >> 4);
+bool strz_eq(char *a, char *b) {
+	return strcmp(a, b) == 0;
 }
 
 void putget_test() {
-	HashMap *map = HashMap_new(1024, strz_hash, NULL, -1);
+	HashMap *map = HashMap_new(1024, 0);
 
 	HashMap_put(map, "januar", 1);
 	HashMap_put(map, "februar", 2);
@@ -35,11 +27,13 @@ void putget_test() {
 
 void saturation_test() {
 	char keys[4096][32];
+	char keys2[4096][32];
 	for (size_t i = 0; i < 4096; i++) {
 		sprintf(keys[i], "%zd", 13579 + i);
+		sprintf(keys2[i], "%zd", 13579 + i);
 	}
 
-	HashMap *map = HashMap_new(1024, strz_hash, NULL, -1);
+	HashMap *map = HashMap_new(1024, 0);
 
 	for (size_t k = 1; k <= 10; k++) {
 		// put all
@@ -47,9 +41,9 @@ void saturation_test() {
 			HashMap_put(map, keys[i], i);
 			assert(HashMap_size(map) == i + 1);
 		}
-		// get all
+		// get all (note we use same keys, but different string instances)
 		for (size_t i = 0; i < 4096; i++) {
-			assert(HashMap_get(map, keys[i]) == i);
+			assert(HashMap_get(map, keys2[i]) == i);
 		}
 		// update all
 		for (size_t i = 0; i < 4096; i++) {
@@ -99,7 +93,7 @@ void iteration_test() {
 		sprintf(keys[i], "%zd", 13579 + i);
 	}
 
-	HashMap *map = HashMap_new(1024, strz_hash, NULL, -1);
+	HashMap *map = HashMap_new(1024, 0);
 
 	// put all
 	for (size_t i = 0; i < 4096; i++) {

@@ -1,42 +1,47 @@
 /*
- * Simple HashMap implementation, no auto resizing/rehashing.
- * Template letters: K, V
+ * Simple HashMap implementation with C string keys, no auto resizing/rehashing.
+ * Template letter: V
  */
 typedef struct HashMapEntry {
-	K key;
+	const char *key;
 	V value;
 	struct HashMapEntry *next;
 } HashMapEntry;
 
-typedef size_t (*HashMapKey_hash)(K key);
-typedef bool (*HashMapKey_eq)(K a, K b);  // TODO: use this, first check why this works without it!
-typedef void (*HasMapEntry_func)(HashMapEntry *e, void *data);
+size_t HashMap_hash(const char *key) {
+	if (key == NULL) {
+		return 0;
+	}
+	size_t h = 0;
+	for (; *key; key++) {
+		h = (31 * h) + (*key);
+	}
+	h ^= (h >> 20) ^ (h >> 12);
+	return h ^ (h >> 7) ^ (h >> 4);
+}
 
 typedef struct {
 	size_t cap;
 	size_t size;
-	HashMapKey_hash hash;
-	K null_key;
-	V null_value;
+	V default_value;
 	HashMapEntry *data;
 } HashMap;
 
-HashMap *HashMap_new(size_t cap, HashMapKey_hash hash, K null_key, V null_value)
+typedef void (*HasMapEntry_func)(HashMapEntry *e, void *data);
+
+HashMap *HashMap_new(size_t cap, V default_value)
 {
 	assert(cap > 0);
-	assert(hash);
 	HashMap *o = malloc(sizeof(*o));
 	assert(o);
 	o->cap = cap;
 	o->size = 0;
-	o->hash = hash;
-	o->null_key = null_key;
-	o->null_value = null_value;
+	o->default_value = default_value;
 	o->data = calloc(cap, sizeof(*o->data));
 	assert(o->data);
 	for (size_t i = 0; i < cap; i++) {
-		o->data[i].key = null_key;
-		o->data[i].value = null_value;
+		o->data[i].key = NULL;
+		o->data[i].value = default_value;
 		o->data[i].next = NULL;
 	}
 	return o;
@@ -60,15 +65,16 @@ void HashMap_delete(HashMap *o)
 }
 
 /*
- * @returns old value on key if found else null_value.
+ * @returns old value on key if found else default_value.
  */
-V HashMap_put(HashMap *o, K key, V value)
+V HashMap_put(HashMap *o, const char *key, V value)
 {
-	assert(key != o->null_key);
-	size_t i = o->hash(key) % o->cap;
+	assert(o);
+	assert(key);
+	size_t i = HashMap_hash(key) % o->cap;
 	HashMapEntry *e = o->data + i;
 	while (e) {
-		if (e->key == key) {
+		if (e->key != NULL && strcmp(e->key, key) == 0) {
 			V old = e->value;
 			e->value = value;
 			return old;
@@ -77,10 +83,10 @@ V HashMap_put(HashMap *o, K key, V value)
 		}
 	}
 	while (e) {
-		if (e->key == o->null_key) {
+		if (e->key == NULL) {
 			e->value = value;
 			o->size++;
-			return o->null_value;
+			return o->default_value;
 		} else {
 			e = e->next;
 		}
@@ -92,49 +98,50 @@ V HashMap_put(HashMap *o, K key, V value)
 	e->next = o->data[i].next;
 	o->data[i].next = e;
 	o->size++;
-	return o->null_value;
+	return o->default_value;
 }
 
 /*
- * @returns value on key if found else null_value.
+ * @returns value on key if found else default_value.
  */
-V HashMap_get(HashMap *o, K key)
+V HashMap_get(HashMap *o, const char *key)
 {
-	assert(key != o->null_key);
-	size_t i = o->hash(key) % o->cap;
+	assert(o);
+	assert(key);
+	size_t i = HashMap_hash(key) % o->cap;
 	HashMapEntry *e = o->data + i;
 	while (e) {
-		if (e->key == key) {
+		if (e->key != NULL && strcmp(e->key, key) == 0) {
 			return e->value;
 		} else {
 			e = e->next;
 		}
 	}
-	return o->null_value;
+	return o->default_value;
 }
 
 /*
- * @returns removed value if key found else null_value.
+ * @returns removed value if key found else default_value.
  * remove does not release any entries, this keeps iterators safe.
  * if you need to reclaim bucket memory your capacity was not correct anyways.
  */
-V HashMap_remove(HashMap *o, K key)
+V HashMap_remove(HashMap *o, const char *key)
 {
-	assert(key != o->null_key);
-	size_t i = o->hash(key) % o->cap;
+	assert(key);
+	size_t i = HashMap_hash(key) % o->cap;
 	HashMapEntry *e = o->data + i;
 	while (e) {
-		if (e->key == key) {
+		if (e->key != NULL && strcmp(e->key, key) == 0) {
 			V removed = e->value;
-			e->key = o->null_key;
-			e->value = o->null_value;
+			e->key = NULL;
+			e->value = o->default_value;
 			o->size--;
 			return removed;
 		} else {
 			e = e->next;
 		}
 	}
-	return o->null_value;
+	return o->default_value;
 }
 
 /***/
@@ -151,7 +158,7 @@ void HashMap_clear(HashMap *o)
 	for (size_t i = 0; i < o->cap; i++) {
 		HashMapEntry *e = o->data + i;
 		while (e) {
-			e->key = o->null_key;
+			e->key = NULL;
 			e = e->next;
 		}
 	}
@@ -165,9 +172,9 @@ void HashMap_forAll(HashMap *o, HasMapEntry_func func, void *data)
 	for (size_t i = 0; i < o->cap; i++) {
 		HashMapEntry *e = o->data + i;
 		while (e) {
-			if (e->key != o->null_key) {
+			if (e->key != NULL) {
 				func(e, data);
-				if (e->key == o->null_key) {
+				if (e->key == NULL) {
 					o->size--;
 				}
 			}
