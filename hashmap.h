@@ -64,8 +64,7 @@ void HashMap_delete(HashMap *o)
 V HashMap_put(HashMap *o, K key, V value)
 {
 	assert(key != o->null_key);
-	size_t i = o->hash(key);
-	assert(i < o->cap);
+	size_t i = o->hash(key) % o->cap;
 	HashMapEntry *e = o->data + i;
 	while (e) {
 		if (e->key == key) {
@@ -101,8 +100,7 @@ V HashMap_put(HashMap *o, K key, V value)
 V HashMap_get(HashMap *o, K key)
 {
 	assert(key != o->null_key);
-	size_t i = o->hash(key);
-	assert(i < o->cap);
+	size_t i = o->hash(key) % o->cap;
 	HashMapEntry *e = o->data + i;
 	while (e) {
 		if (e->key == key) {
@@ -122,8 +120,7 @@ V HashMap_get(HashMap *o, K key)
 V HashMap_remove(HashMap *o, K key)
 {
 	assert(key != o->null_key);
-	size_t i = o->hash(key);
-	assert(i < o->cap);
+	size_t i = o->hash(key) % o->cap;
 	HashMapEntry *e = o->data + i;
 	while (e) {
 		if (e->key == key) {

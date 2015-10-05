@@ -6,17 +6,20 @@ typedef char *K;
 typedef int V;
 #include "hashmap.h"
 
-size_t hash1024(char *key) {
-	size_t ret = 1;
-	while (*key) {
-		ret = 31 * ret + (*key);
-		key++;
+size_t strz_hash(char *key) {
+	if (key == NULL) {
+		return 0;
 	}
-	return ret % 1024;
+	uint32_t h = 0;
+	for (; *key; key++) {
+		h = (31 * h) + (*key);
+	}
+	h ^= (h >> 20) ^ (h >> 12);
+	return h ^ (h >> 7) ^ (h >> 4);
 }
 
 void putget_test() {
-	HashMap *map = HashMap_new(1024, hash1024, NULL, -1);
+	HashMap *map = HashMap_new(1024, strz_hash, NULL, -1);
 
 	HashMap_put(map, "januar", 1);
 	HashMap_put(map, "februar", 2);
@@ -35,7 +38,7 @@ void saturation_test() {
 		sprintf(keys[i], "%zd", 13579 + i);
 	}
 
-	HashMap *map = HashMap_new(1024, hash1024, NULL, -1);
+	HashMap *map = HashMap_new(1024, strz_hash, NULL, -1);
 
 	for (size_t k = 1; k <= 10; k++) {
 		// put all
@@ -84,7 +87,7 @@ void iteration_test() {
 		sprintf(keys[i], "%zd", 13579 + i);
 	}
 
-	HashMap *map = HashMap_new(1024, hash1024, NULL, -1);
+	HashMap *map = HashMap_new(1024, strz_hash, NULL, -1);
 
 	// put all
 	for (size_t i = 0; i < 4096; i++) {
