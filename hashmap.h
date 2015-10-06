@@ -5,14 +5,15 @@
 typedef struct HashMapEntry {
 	const char *key;
 	V value;
+	uint32_t hash;
 	struct HashMapEntry *next;
 } HashMapEntry;
 
-size_t HashMap_hash(const char *key) {
+uint32_t HashMap_hash(const char *key) {
 	if (key == NULL) {
 		return 0;
 	}
-	size_t h = 0;
+	uint32_t h = 0;
 	for (; *key; key++) {
 		h = (31 * h) + (*key);
 	}
@@ -21,15 +22,15 @@ size_t HashMap_hash(const char *key) {
 }
 
 typedef struct {
-	size_t cap;
-	size_t size;
+	uint32_t cap;
+	uint32_t size;
 	V default_value;
 	HashMapEntry *data;
 } HashMap;
 
 typedef void (*HasMapEntry_func)(HashMapEntry *e, void *data);
 
-HashMap *HashMap_new(size_t cap, V default_value)
+HashMap *HashMap_new(uint32_t cap, V default_value)
 {
 	assert(cap > 0);
 	HashMap *o = malloc(sizeof(*o));
@@ -39,7 +40,7 @@ HashMap *HashMap_new(size_t cap, V default_value)
 	o->default_value = default_value;
 	o->data = calloc(cap, sizeof(*o->data));
 	assert(o->data);
-	for (size_t i = 0; i < cap; i++) {
+	for (uint32_t i = 0; i < cap; i++) {
 		o->data[i].key = NULL;
 		o->data[i].value = default_value;
 		o->data[i].next = NULL;
@@ -50,7 +51,7 @@ HashMap *HashMap_new(size_t cap, V default_value)
 void HashMap_delete(HashMap *o)
 {
 	assert(o);
-	for (size_t i = 0; i < o->cap; i++) {
+	for (uint32_t i = 0; i < o->cap; i++) {
 		HashMapEntry *e = o->data[i].next;
 		while (e) {
 			HashMapEntry *t = e->next;
@@ -71,7 +72,8 @@ V HashMap_put(HashMap *o, const char *key, V value)
 {
 	assert(o);
 	assert(key);
-	size_t i = HashMap_hash(key) % o->cap;
+	uint32_t hash = HashMap_hash(key);
+	uint32_t i = hash % o->cap;
 	HashMapEntry *e = o->data + i;
 	while (e) {
 		if (e->key != NULL && strcmp(e->key, key) == 0) {
@@ -82,8 +84,11 @@ V HashMap_put(HashMap *o, const char *key, V value)
 			e = e->next;
 		}
 	}
+	e = o->data + i;
 	while (e) {
 		if (e->key == NULL) {
+			e->key = key;
+			e->hash = hash;
 			e->value = value;
 			o->size++;
 			return o->default_value;
@@ -94,6 +99,7 @@ V HashMap_put(HashMap *o, const char *key, V value)
 	e = malloc(sizeof(*e));
 	assert(e);
 	e->key = key;
+	e->hash = hash;
 	e->value = value;
 	e->next = o->data[i].next;
 	o->data[i].next = e;
@@ -108,7 +114,7 @@ V HashMap_get(HashMap *o, const char *key)
 {
 	assert(o);
 	assert(key);
-	size_t i = HashMap_hash(key) % o->cap;
+	uint32_t i = HashMap_hash(key) % o->cap;
 	HashMapEntry *e = o->data + i;
 	while (e) {
 		if (e->key != NULL && strcmp(e->key, key) == 0) {
@@ -128,7 +134,7 @@ V HashMap_get(HashMap *o, const char *key)
 V HashMap_remove(HashMap *o, const char *key)
 {
 	assert(key);
-	size_t i = HashMap_hash(key) % o->cap;
+	uint32_t i = HashMap_hash(key) % o->cap;
 	HashMapEntry *e = o->data + i;
 	while (e) {
 		if (e->key != NULL && strcmp(e->key, key) == 0) {
@@ -145,7 +151,7 @@ V HashMap_remove(HashMap *o, const char *key)
 }
 
 /***/
-size_t HashMap_size(HashMap *o)
+uint32_t HashMap_size(HashMap *o)
 {
 	return o->size;
 }
@@ -155,7 +161,7 @@ size_t HashMap_size(HashMap *o)
 void HashMap_clear(HashMap *o)
 {
 	assert(o);
-	for (size_t i = 0; i < o->cap; i++) {
+	for (uint32_t i = 0; i < o->cap; i++) {
 		HashMapEntry *e = o->data + i;
 		while (e) {
 			e->key = NULL;
@@ -169,7 +175,7 @@ void HashMap_clear(HashMap *o)
 void HashMap_forAll(HashMap *o, HasMapEntry_func func, void *data)
 {
 	assert(o);
-	for (size_t i = 0; i < o->cap; i++) {
+	for (uint32_t i = 0; i < o->cap; i++) {
 		HashMapEntry *e = o->data + i;
 		while (e) {
 			if (e->key != NULL) {

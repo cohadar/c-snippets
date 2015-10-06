@@ -123,11 +123,40 @@ void iteration_test() {
 	HashMap_delete(map);
 }
 
+void accordion_test() {
+	char keys[4096][32];
+	for (size_t i = 0; i < 4096; i++) {
+		sprintf(keys[i], "%zd", 13579 + i);
+	}
+
+	HashMap *map = HashMap_new(1024, 0);
+
+	for (size_t k = 0; k < 10; k++) {
+		// put all
+		for (size_t i = 0; i < 4096; i++) {
+			HashMap_put(map, keys[i], i);
+		}
+		assert(HashMap_size(map) == 4096);
+		// get all
+		for (size_t i = 0; i < 4096; i++) {
+			assert(HashMap_get(map, keys[i]) == i);
+		}
+		// remove all
+		for (size_t i = 0; i < 4096; i++) {
+			HashMap_remove(map, keys[i]);
+		}
+		assert(HashMap_size(map) == 0);
+	}
+
+	HashMap_delete(map);
+}
+
 int main(int argc, char const *argv[])
 {
 	putget_test();
 	saturation_test();
 	iteration_test();
+	accordion_test();
 	printf("All Ok.\n");
 	return 0;
 }
