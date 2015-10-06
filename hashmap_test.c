@@ -131,12 +131,14 @@ void accordion_test() {
 
 	HashMap *map = HashMap_new(1024, 0);
 
-	for (size_t k = 0; k < 10; k++) {
+	for (size_t k = 0; k < 1000; k++) {
 		// put all
 		for (size_t i = 0; i < 4096; i++) {
 			HashMap_put(map, keys[i], i);
 		}
 		assert(HashMap_size(map) == 4096);
+		// Insanity I say!
+		HashMap_resize(map, 1 + rand() % 2048);
 		// get all
 		for (size_t i = 0; i < 4096; i++) {
 			assert(HashMap_get(map, keys[i]) == i);

@@ -9,6 +9,15 @@ typedef struct HashMapEntry {
 	struct HashMapEntry *next;
 } HashMapEntry;
 
+typedef struct {
+	uint32_t cap;
+	uint32_t size;
+	V default_value;
+	HashMapEntry *data;
+} HashMap;
+
+typedef void (*HasMapEntry_func)(HashMapEntry *e, void *data);
+
 uint32_t HashMap_hash(const char *key) {
 	if (key == NULL) {
 		return 0;
@@ -20,15 +29,6 @@ uint32_t HashMap_hash(const char *key) {
 	h ^= (h >> 20) ^ (h >> 12);
 	return h ^ (h >> 7) ^ (h >> 4);
 }
-
-typedef struct {
-	uint32_t cap;
-	uint32_t size;
-	V default_value;
-	HashMapEntry *data;
-} HashMap;
-
-typedef void (*HasMapEntry_func)(HashMapEntry *e, void *data);
 
 HashMap *HashMap_new(uint32_t cap, V default_value)
 {
@@ -150,12 +150,45 @@ V HashMap_remove(HashMap *o, const char *key)
 	return o->default_value;
 }
 
+/*
+ * Resizes HashMap to new capacity.
+ * How people handle iterator invalidation on resize?
+ */
+void HashMap_resize(HashMap *o, uint32_t new_cap) {
+	assert(o);
+	assert(new_cap > 0);
+
+	HashMap *temp = HashMap_new(new_cap, o->default_value);
+
+	for (uint32_t i = 0; i < o->cap; i++) {
+		HashMapEntry *e = o->data + i;
+		while (e) {
+			if (e->key != NULL) {
+				HashMap_put(temp, e->key, e->value);
+			}
+			e = e->next;
+		}
+	}
+	uint32_t temp_cap = o->cap;
+	o->cap = temp->cap;
+	temp->cap = temp_cap;
+
+	uint32_t temp_size = o->size;
+	o->size = temp->size;
+	temp->size = temp_size;
+
+	HashMapEntry *temp_data = o->data;
+	o->data = temp->data;
+	temp->data = temp_data;
+
+	HashMap_delete(temp);
+}
+
 /***/
 uint32_t HashMap_size(HashMap *o)
 {
 	return o->size;
 }
-
 
 /***/
 void HashMap_clear(HashMap *o)
