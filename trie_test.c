@@ -11,7 +11,6 @@ typedef int V;
 int main(int argc, char const *argv[])
 {
 	Trie *t = Trie_new();
-	Trie_delete(t);
 	Trie_add(t, "abc", 1);
 	Trie_add(t, "abd", 1);
 	Trie_add(t, "bcd", 1);
@@ -28,5 +27,6 @@ int main(int argc, char const *argv[])
 	assert(Trie_get(t, "") == 0);
 	Trie_add(t, "", 5);
 	assert(Trie_get(t, "") == 5);
+	Trie_delete(t);
 	return 0;
 }

@@ -40,7 +40,7 @@ void Trie_add(Trie *o, const char *word, V value)
 		unsigned char c = (unsigned char)word[i];
 		assert(c < TRIE_ALPHABET_SIZE);
 		if (o->children[c] == NULL) {
-			o->children[c] = malloc(sizeof(*o->children[c]));
+			o->children[c] = Trie_new();
 			assert(o->children[c]);
 			o = o->children[c];
 			o->value = 0;
