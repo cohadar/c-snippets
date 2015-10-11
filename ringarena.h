@@ -10,7 +10,7 @@ typedef struct {
 	void** _ring;
 } RingArena;
 
-RingArena *ringarena_new(size_t _size)
+RingArena *RingArena_new(size_t _size)
 {
 	assert(_size > 0);
 	RingArena *o = malloc(sizeof(*o));
@@ -25,7 +25,7 @@ RingArena *ringarena_new(size_t _size)
 	return o;
 }
 
-void ringarena_delete(RingArena *o)
+void RingArena_delete(RingArena *o)
 {
 	for (size_t i = 0; i < o->_size; i++) {
 		if (o->_ring[i] != NULL) {
@@ -38,7 +38,7 @@ void ringarena_delete(RingArena *o)
 	free(o);
 }
 
-void *ringarena_next(RingArena *o, size_t _size)
+void *RingArena_next(RingArena *o, size_t _size)
 {
 	assert(_size > 0);
 	o->_last = (o->_last + 1) % o->_size;
