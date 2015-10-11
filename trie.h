@@ -30,7 +30,7 @@
  	free(o);
  }
 
-void Trie_add(Trie *o, char *word, V value)
+void Trie_add(Trie *o, const char *word, V value)
 {
 	assert(o);
 	assert(word);
@@ -52,7 +52,7 @@ void Trie_add(Trie *o, char *word, V value)
 	o->value = value;
 }
 
-bool Trie_hasprefix(Trie *o, char *word)
+bool Trie_hasprefix(Trie *o, const char *word)
 {
 	assert(o);
 	assert(word);
@@ -71,7 +71,7 @@ bool Trie_hasprefix(Trie *o, char *word)
 	return true;
 }
 
-V Trie_get(Trie *o, char *word)
+V Trie_get(Trie *o, const char *word)
 {
 	assert(o);
 	assert(word);
