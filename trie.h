@@ -30,7 +30,7 @@
  	free(o);
  }
 
-void Trie_add(Trie *o, const char *word, V value)
+void Trie_put(Trie *o, const char *word, V value)
 {
 	assert(o);
 	assert(word);
