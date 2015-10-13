@@ -46,7 +46,7 @@ void Vector_append(Vector *o, void *element)
 {
 	assert(o);
 	if (o->len == o->cap) {
-		o->cap = (o->cap == 0) ? 256 : o->cap * 2;
+		o->cap = (o->cap == 0) ? 1024 : o->cap * 2;
 		o->data = realloc(o->data, o->cap * sizeof(*o->data));
 		assert(o->data);
 	}
@@ -92,4 +92,19 @@ void *Vector_map(Vector *o, Vector_mapfunc func, void *closure)
 		}
 	}
 	return ret;
+}
+
+void Vector_swap(Vector *o, Vector *x)
+{
+	assert(o);
+	assert(x);
+	void **data = x->data;
+	size_t len  = x->len;
+	size_t cap  = x->cap;
+	x->data = o->data;
+	x->len  = o->len;
+	x->cap  = o->cap;
+	o->data = data;
+	o->len  = len;
+	o->cap  = cap;
 }
